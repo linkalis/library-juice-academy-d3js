@@ -1,0 +1,107 @@
+<head>
+
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+  <style>
+    body {
+      font: 12px sans-serif;
+      background-color: #ccc;
+    }
+    .chart {
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      background-color: #fff;
+    }
+    .bar {
+      fill: steelblue;
+      z-index: 1000;
+    }
+    .text {
+      font-family: Helvetica, sans-serif;
+      font-size: 12px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div id="d3chart"></div>
+
+<script>
+$(document).ready(function() {
+   // do stuff when DOM is ready
+
+var data=[{"Quantity":"100","fruits":"Apples"},{"Quantity":"60","fruits":"Pears"},{"Quantity":"70","fruits":"Tangerines"},{"Quantity":"90","fruits":"Pomegranates"},{"Quantity":"50","fruits":"Oranges"}];
+
+var margin = {top: 40, right: 20, bottom: 40, left: 20}, //// The concept of margins is best explained here: http://bl.ocks.org/mbostock/3019563
+    width = 800, ///width and height of the SVG image
+    height = 500;
+
+// SET X as linear scale to display quantities
+var x = d3.scale.linear()
+    .domain([0, d3.max(data, function(d) { return Number(d.Quantity); })]) /// domain is an array that contains the beginning of the range and the end of the range.
+    .range([0, width - margin.left - margin.right]); /// the range extends from 0 to the maximum width
+
+var xAxis = d3.svg.axis() /// Specification for xAxis
+    .scale(x) // link to y scale
+    .ticks(5)
+    //.tickValues([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+    .orient('bottom')
+    .tickPadding(8);
+
+// Parse fruit types from the dataset, and store them in fruit_array
+var fruit_array = [];
+
+data.forEach( function(d) { fruit_array.push(d.fruits); });
+
+console.log(fruit_array);
+
+// SET Y as ordinal scale to display fruit types
+var y = d3.scale.ordinal()
+      .domain(fruit_array)
+    //.domain(["Apples", "Pears", "Tangerines", "Pomegranates", "Oranges"])
+    //.domain([ data.forEach( function(d) { return d.fruits; }) ])
+    //.rangePoints([0, height], 3); // with "padding" defined after range values
+    .rangePoints([0, height - margin.top - margin.bottom - 40]); /// the range extends from the maximum height to 0 (representing top edge of SVG graphic); then clear some extra margin space for axis
+
+var svg = d3.select('#d3chart').append('svg') /// append an SVG chart to the div with id #bar-demo
+    .attr('class', 'chart') /// Attach a CSS class (see styles above). This class can have any other name
+    .attr('width', width ) // a reference to width which was specified earlier in this file
+    .attr('height', height) // a reference to height which was specified earlier in this file
+  .append('g') /// here we specify that the chart will conatin a group of elements
+    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')'); /// the position of the chart should start not at 0,0,but at 40,40.
+
+
+svg.selectAll('.chart') /// Here we select the CSS class chart. (Remember we assigned it earlier?)
+    .data(data) //Bind the chart to data.
+  .enter().append('rect') // add SVG rectangles
+    .attr('class', 'bar') // Add a CSS class
+    /// Set attr('x') and attr('y') to define the "top left corner" of each bar
+    .attr('x', 0)
+    .attr('y', function(d) { return y(d.fruits); })
+    .attr('width', function(d) { return x(d.Quantity); }) /// width of bars as function of d.Quantity
+    .attr('height', 30); // height of bars in pixels
+
+svg.selectAll(".rect") /// select all DOM elements that have rect class
+    .data(data) /// bind to data
+  .enter().append("svg:text") //append text labels with values
+    .attr('class', 'text')
+    .attr("x", function(d) { return x(d.Quantity) - 110; }) // position
+    .attr("y", function(d) { return y(d.fruits); })/// position of the text label
+    .attr("dx", "0.5em") // padding-right
+    .attr("dy", "1.50em") // padding-left
+    .attr("text-anchor", "left") // text-align: left
+    .text(function(d) { return d.fruits + " (" + d.Quantity + ")" }); /// Text
+
+svg.append('g') /// Append xAxis
+    .attr('class', 'axis') /// A reference to a CSS class
+    .attr('transform', 'translate(0, ' + (height - margin.top - margin.bottom) + ')') ///position
+    .call(xAxis); //A reference to xAxis
+
+ });
+</script>
+
+
+</body>
