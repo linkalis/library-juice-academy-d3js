@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html data-ember-extension="1"><head>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title></title>
+
+
+  <script type="text/javascript" src="rect_shapes_files/jquery.js"></script>
+
+  <script type="text/javascript" src="rect_shapes_files/d3.js"></script>
+  <style>
+
+body {
+  font: 10px sans-serif;
+}
+  .chart {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+  }
+
+  .axis path, .axis line {
+    fill: none;
+    stroke: #0000ff;
+    stroke-width: 2px;
+    shape-rendering: crispEdges;
+  }
+
+  .bar {
+    fill: steelblue;
+    z-index: 1000;
+  }
+  .grid .tick {
+    stroke: lightgrey;
+    opacity: 0.7;
+    z-index: -1000;
+}
+.grid path {
+      stroke-width: 0;
+      z-index: -1000;
+
+}
+
+</style>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+   var data = [{"date":"2015-01-20","total":3},{"date":"2015-01-21","total":8},{"date":"2015-01-22","total":2},{"date":"2015-01-23","total":10},{"date":"2015-01-24","total":3},{"date":"2015-01-25","total":20},{"date":"2015-01-26","total":12}];
+
+var margin = {top: 40, right: 40, bottom: 40, left:40}, 
+    width = 600, 
+    height = 500;
+
+var x = d3.time.scale()    
+    .domain([new Date(data[0].date), d3.time.day.offset(new Date(data[data.length - 1].date), 1)])
+    .rangeRound([0, width - margin.left - margin.right]); 
+
+var y = d3.scale.linear()
+    .domain([0, d3.max(data, function(d) { return d.total;})])
+    .range([height - margin.top - margin.bottom, 0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient('bottom')
+    .ticks(d3.time.days, 1) 
+    .tickFormat(d3.time.format('%m-%d-%Y')) 
+    .tickSize(0)
+    .tickPadding(8);
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient('left')
+    .tickPadding(8);
+    
+var xAxis1 = d3.svg.axis()
+    .scale(x)
+    .orient('bottom');
+
+var yAxis1 = d3.svg.axis()
+    .scale(y)
+    .orient('left');
+
+var svg = d3.select('#bar-demo').append('svg') 
+    .attr('class', 'chart') 
+    .attr('width', width)
+    .attr('height', height) 
+    .append('g')
+    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')'); 
+svg.append('g')
+    .attr('class', 'x axis') 
+    .attr('transform', 'translate(0, ' + (height - margin.top - margin.bottom) + ')') 
+    .call(xAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("x", 550)
+      .attr("y", 0)
+      .style("text-anchor", "end")
+      .text("Dates"); 
+
+
+
+svg.append("g")    
+        .attr("class", "grid")
+        .attr("transform", "translate(0," + (height - margin.bottom - margin.top)+")") 
+        .call(xAxis1
+        .ticks(d3.time.hours, 12) 
+        .tickSize(-(height-margin.top-margin.bottom), 0, 0) 
+        .tickFormat("")
+        );            
+    
+svg.append('g')
+  .attr('class', 'y axis')
+  .call(yAxis)
+.append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Values");
+
+svg.append("g") 
+        .attr("class", "grid")
+        .call(yAxis1
+        .ticks(20) 
+        .tickSize(-(width-margin.left-margin.right), 0, 0)
+         .tickFormat("")
+        );
+
+//////////////new part/////////////
+     
+svg.selectAll('.chart') /// Select class chart
+    .data(data) //Bind the chart to data.
+    .enter()
+    .append('rect')                       
+    .attr("x", function(d) { return x(new Date(d.date)); }) 
+    //The x attribute defines the left position of the rectangle
+    .attr("y", function(d) { return y(d.total); })
+    ///The y attribute defines the top position of the rectangle
+    .attr("width", "10")
+    .attr("height", "10")  
+    //The width and height attributes of the <rect> element define the height and the width of the rectangle 
+    /// Width and height are specified in pixels 
+    .style("fill", "steelblue"); 
+     
+//////////////////////the end ///////////////////////////   
+
+
+svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y", 0 - (margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "20px") 
+        .text("Totals in January");		
+	
+});
+
+</script>
+
+</head>
+	<body>
+	<div id="bar-demo" style="position: relative; top: 3px; left: 20px;"><svg height="500" width="600" class="chart"><g transform="translate(40, 40)"><g transform="translate(0, 420)" class="x axis"><g transform="translate(19,0)" style="opacity: 1;" class="tick"><line x2="0" y2="0"></line><text x="0" y="8" style="text-anchor: middle;" dy=".71em">01-20-2015</text></g><g transform="translate(93,0)" style="opacity: 1;" class="tick"><line x2="0" y2="0"></line><text x="0" y="8" style="text-anchor: middle;" dy=".71em">01-21-2015</text></g><g transform="translate(167,0)" style="opacity: 1;" class="tick"><line x2="0" y2="0"></line><text x="0" y="8" style="text-anchor: middle;" dy=".71em">01-22-2015</text></g><g transform="translate(241,0)" style="opacity: 1;" class="tick"><line x2="0" y2="0"></line><text x="0" y="8" style="text-anchor: middle;" dy=".71em">01-23-2015</text></g><g transform="translate(316,0)" style="opacity: 1;" class="tick"><line x2="0" y2="0"></line><text x="0" y="8" style="text-anchor: middle;" dy=".71em">01-24-2015</text></g><g transform="translate(390,0)" style="opacity: 1;" class="tick"><line x2="0" y2="0"></line><text x="0" y="8" style="text-anchor: middle;" dy=".71em">01-25-2015</text></g><g transform="translate(464,0)" style="opacity: 1;" class="tick"><line x2="0" y2="0"></line><text x="0" y="8" style="text-anchor: middle;" dy=".71em">01-26-2015</text></g><path d="M0,0V0H520V0" class="domain"></path><text style="text-anchor: end;" y="0" x="550" class="label">Dates</text></g><g transform="translate(0,420)" class="grid"><g transform="translate(19,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(56,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(93,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(130,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(167,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(204,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(241,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(279,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(316,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(353,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(390,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(427,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(464,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><g transform="translate(501,0)" style="opacity: 1;" class="tick"><line x2="0" y2="-420"></line><text x="0" y="3" style="text-anchor: middle;" dy=".71em"></text></g><path d="M0,0V0H520V0" class="domain"></path></g><g class="y axis"><g transform="translate(0,420)" style="opacity: 1;" class="tick"><line y2="0" x2="-6"></line><text y="0" x="-14" style="text-anchor: end;" dy=".32em">0</text></g><g transform="translate(0,378)" style="opacity: 1;" class="tick"><line y2="0" x2="-6"></line><text y="0" x="-14" style="text-anchor: end;" dy=".32em">2</text></g><g transform="translate(0,336)" style="opacity: 1;" class="tick"><line y2="0" x2="-6"></line><text y="0" x="-14" style="text-anchor: end;" dy=".32em">4</text></g><g transform="translate(0,294)" style="opacity: 1;" class="tick"><line y2="0" x2="-6"></line><text y="0" x="-14" style="text-anchor: end;" dy=".32em">6</text></g><g transform="translate(0,252)" style="opacity: 1;" class="tick"><line y2="0" x2="-6"></line><text y="0" x="-14" style="text-anchor: end;" dy=".32em">8</text></g><g transform="translate(0,210)" style="opacity: 1;" class="tick"><line y2="0" x2="-6"></line><text y="0" x="-14" style="text-anchor: end;" dy=".32em">10</text></g><g transform="translate(0,168)" style="opacity: 1;" class="tick"><line y2="0" x2="-6"></line><text y="0" x="-14" style="text-anchor: end;" dy=".32em">12</text></g><g transform="translate(0,126.00000000000001)" style="opacity: 1;" class="tick"><line y2="0" x2="-6"></line><text y="0" x="-14" style="text-anchor: end;" dy=".32em">14</text></g><g transform="translate(0,83.99999999999999)" style="opacity: 1;" class="tick"><line y2="0" x2="-6"></line><text y="0" x="-14" style="text-anchor: end;" dy=".32em">16</text></g><g transform="translate(0,41.99999999999999)" style="opacity: 1;" class="tick"><line y2="0" x2="-6"></line><text y="0" x="-14" style="text-anchor: end;" dy=".32em">18</text></g><g transform="translate(0,0)" style="opacity: 1;" class="tick"><line y2="0" x2="-6"></line><text y="0" x="-14" style="text-anchor: end;" dy=".32em">20</text></g><path d="M-6,0H0V420H-6" class="domain"></path><text style="text-anchor: end;" dy=".71em" y="6" transform="rotate(-90)" class="label">Values</text></g><g class="grid"><g transform="translate(0,420)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,399)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,378)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,357)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,336)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,315)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,294)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,273)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,252)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,231.00000000000003)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,210)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,188.99999999999997)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,168)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,147)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,126.00000000000001)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,105)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,83.99999999999999)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,63.00000000000001)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,41.99999999999999)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,21.000000000000018)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><g transform="translate(0,0)" style="opacity: 1;" class="tick"><line y2="0" x2="520"></line><text y="0" x="-3" style="text-anchor: end;" dy=".32em"></text></g><path d="M0,0H0V420H0" class="domain"></path></g><rect style="fill: steelblue;" height="10" width="10" y="357" x="0"></rect><rect style="fill: steelblue;" height="10" width="10" y="252" x="74"></rect><rect style="fill: steelblue;" height="10" width="10" y="378" x="149"></rect><rect style="fill: steelblue;" height="10" width="10" y="210" x="223"></rect><rect style="fill: steelblue;" height="10" width="10" y="357" x="297"></rect><rect style="fill: steelblue;" height="10" width="10" y="0" x="371"></rect><rect style="fill: steelblue;" height="10" width="10" y="168" x="446"></rect><text style="font-size: 20px;" text-anchor="middle" y="-20" x="300">Totals in January</text></g></svg></div>
+	
+
+
+</body></html>
