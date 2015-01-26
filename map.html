@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<head>
+
+  <script src="map_files/d3.js" charset="utf-8"></script>
+  <script src="map_files/queue.js"></script>
+  <script src="map_files/topojson.js"></script>
+
+  <style>
+    path {
+      stroke-linejoin: round;
+    }
+    .land {
+      fill: #bbb;
+    }
+    .states {
+      fill: none;
+      stroke: #fff;
+    }
+    .neighborhoods {
+      stroke: #f00;
+      fill: none;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<script>
+
+var width = 960,
+  height = 500;
+
+var projection = d3.geo.albers();
+
+var path = d3.geo.path()
+    .projection(projection)
+    .pointRadius(1);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+queue()
+    .defer(d3.json, "map_files/minneapolis_neighborhoods_topojson.json")
+    .defer(d3.json, "map_files/us.json")
+    .await(ready);
+
+function ready(error, mpls, us) {
+    svg.append("path")
+        .datum(topojson.feature(us, us.objects.land))
+        .attr("class", "land")
+        .attr("d", path);
+
+    svg.append("g")
+        .attr("class", "states")
+        .selectAll("path")
+      .data(topojson.feature(us, us.objects.states).features)
+        .enter()
+        .append("path")
+        .attr("d", path);
+
+
+    svg.append("path")
+        .datum(topojson.feature(mpls, mpls.objects.minneapolis_neighborhoods).features)
+        .attr("class", "neighborhoods")
+        .attr("d", path);
+}
+
+</script>
+
+
+</body>
+
+</html>
