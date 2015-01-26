@@ -1,44 +1,75 @@
 <head>
+  <title>Movies from Rotten Tomatoes</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
   <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
 
+  <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+
   <style>
 
-  body {
-    font-family: 'Helvetica', sans-serif;
-  }
+    .jumbotron {
+      margin-bottom: 0px;
+      background-image: url(film.jpg);
+      background-color: rgba(0,0,0,0.6);
+      /*background-position: 0% 25%;*/
+      background-size: 25% 100%;
+      background-repeat: x-repeat;
+    }
 
-  #d3chart {
-    background-color: #fff;
-  }
+    .jumbotron h1 {
+      color: darkorange;
+      text-shadow: 0.05em 0.05em #555;
+      text-align: center;
+    }
 
-  .node circle {
-    fill: orange;
-    stroke: darkorange;
-    stroke-width: 2px;
-  }
+    .jumbotron p {
+      color: black;
+      text-shadow: none;
+      text-align: center;
+    }
 
-  .node {
-    font: 12px sans-serif;
-  }
+    body {
+      font-family: 'Helvetica', sans-serif;
+    }
 
-  .link {
-    fill: none;
-    stroke: #ccc;
-    stroke-width: 1.5px;
-  }
+    #d3chart {
+      background-color: #fff;
+    }
+
+    .node circle {
+      fill: orange;
+      stroke: darkorange;
+      stroke-width: 2px;
+    }
+
+    .node {
+      font: 12px sans-serif;
+    }
+
+    .link {
+      fill: none;
+      stroke: #ccc;
+      stroke-width: 1.5px;
+    }
 
   </style>
 
 </head>
 
 <body>
+  <div id="container">
 
-  <h1>Movies from Rotten Tomatoes</h1>
-  <p>(Click on a movie to search for showtimes on Google Movies.)</p>
+    <div class="jumbotron">
+      <h1>Movies from Rotten Tomatoes</h1>
+      <p>(Click on a movie to search for showtimes on Google Movies. Click on an actor to search IMDB for their profile.)</p>
+    </div>
 
-  <div id="d3chart"></div>
+    <div id="d3chart" class="row"></div>
+
+  </div>
 
 <script>
 
@@ -112,7 +143,9 @@ function drawChart(dataTree) {
     .attr("r", function(d) { return d.depth == 1 ? 27 : 5 ; })
     .on('click', function(d) {
       if (d.depth == 1) {
-        window.location.href = 'http://www.google.com/movies?near=55404&hl=en&q=' + d.name;
+        window.open('http://www.google.com/movies?near=55404&hl=en&q=' + d.name);
+      } else if (d.depth == 2){
+        window.open('http://www.imdb.com/find?ref_=nv_sr_fn&q=' + d.name + '&s=all');
       } else {
         //window.location.href = 'http://www.google.com/movies';
       }
