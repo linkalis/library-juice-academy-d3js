@@ -6,26 +6,15 @@
   <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
   <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
 
-  <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
-
   <style>
 
-    .jumbotron {
-      margin-bottom: 0px;
-      background-image: url(film.jpg);
-      background-color: rgba(0,0,0,0.6);
-      /*background-position: 0% 25%;*/
-      background-size: 25% 100%;
-      background-repeat: x-repeat;
-    }
-
-    .jumbotron h1 {
+    h1 {
+      font-size: 3em;
       color: darkorange;
-      text-shadow: 0.05em 0.05em #555;
       text-align: center;
     }
 
-    .jumbotron p {
+    p {
       color: black;
       text-shadow: none;
       text-align: center;
@@ -62,18 +51,20 @@
 <body>
   <div id="container">
 
-    <div class="jumbotron">
-      <h1>Movies from Rotten Tomatoes</h1>
-      <p>(Click on a movie to search for showtimes on Google Movies. Click on an actor to search IMDB for their profile.)</p>
-    </div>
+    <h1>Movies from Rotten Tomatoes</h1>
+    <div id="date"></div>
 
-    <div id="d3chart" class="row"></div>
+    <p>Click on a movie circle to search for showtimes on Google Movies. Click on an actor circle to search IMDB for their profile.</p>
+
+    <div id="d3chart"></div>
 
   </div>
 
 <script>
 
 var diameter = 960;
+
+var today = new Date();
 
 $(document).ready(function() {
 
@@ -85,7 +76,7 @@ $(document).ready(function() {
       movie_data = data;
 
       var dataTree0 = {
-        name: 'In Theaters',
+        name: 'In Theaters ',
         children: movie_data.movies.map(function(d) { return { name: d.title, children: d.abridged_cast.map(function(actor) { return { name: actor.name }; }) }; })
       }
 
@@ -184,6 +175,8 @@ function drawChart(dataTree) {
       })
     .text(function(d) { return d.name; });
 }
+
+$("#date").html("<p>" + today + "</p>");
 
 </script>
 
