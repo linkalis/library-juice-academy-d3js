@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+<head>
+
+  <script src="map_files/d3.js" charset="utf-8"></script>
+  <script src="map_files/queue.js"></script>
+  <script src="map_files/topojson.js"></script>
+
+  <style>
+    body {
+      font-family: "Helvetica", sans-serif;
+    }
+
+    path {
+      stroke-linejoin: round;
+    }
+
+    .counties {
+      stroke: #fff;
+      fill: #ccc;
+    }
+
+    .communities {
+      stroke: #fff;
+      stroke-width: 3px;
+      fill: #ccc;
+    }
+
+    .community-label {
+      font-family: "Helvetica", sans-serif;
+      font-size: 14px;
+    }
+
+    .legend-entry {
+      font-family: "Helvetica", sans-serif;
+      font-size: 14px;
+    }
+
+
+  </style>
+</head>
+
+<body>
+
+  <h1>Percentage of Minneapolis community residents with access to a desktop/laptop computer (2014)</h1>
+  <p>Data from the <a href="http://www.minneapolismn.gov/it/inclusion/WCMS1P-118865" target="_blank">Minneapolis Community Technology Survey (2014)</a></p>
+
+<div id="d3chart"></div>
+
+<script>
+
+var width = 960,
+    height = 1200;
+
+// Define projection, centered on the city of Minneapolis
+var mercatorprojection = d3.geo.mercator()
+    .center([-93.258133, 44.97])
+    .scale(250000)
+    .translate([width / 2, height / 2]);  // translate so the map is centered w/in the SVG element
+
+var path = d3.geo.path()
+    .projection(mercatorprojection)
+    .pointRadius(1);
+
+var svg = d3.select("#d3chart").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+queue()
+    .defer(d3.json, "map_files/us.json")
+    .defer(d3.json, "map_files/mpls_communities_topo.json")
+    .await(ready);
+
+
+// Datasets from Minneapolis Community Technology Survey
+var desktop_laptop = [{ "Calhoun Isle": 92, "Camden": 78, "Central": 77, "Longfellow": 90, "Near North": 69, "Nokomis": 89, "Northeast": 84, "Phillips": 71, "Powderhorn": 84, "Southwest": 92, "University": 92 }];
+var cellphone = [{ "Calhoun Isle": 85, "Camden": 72, "Central": 77, "Longfellow": 75, "Near North": 75, "Nokomis": 79, "Northeast": 79, "Phillips": 68, "Powderhorn": 78, "Southwest": 83, "University": 79 }];
+
+// Define color scale
+var color_scale = d3.scale.quantize()
+    .domain(d3.values(desktop_laptop[0]).sort(d3.descending))
+    .range(["#31a354", "#74c476", "#fdae6b", "#e6550d"]);
+
+
+// MAP! Once map json files are loaded in queue(), initialize map
+function ready(error, us, mpls_communities) {
+    // Map county boundaries to give context
+    svg.append("g")
+        .attr("class", "counties")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.counties).features)
+      .enter()
+        .append("path")
+        .attr("d", path);
+
+
+    // Map Minneapolis community outlines
+    svg.append("g")
+        .attr("class", "communities")
+        .selectAll("path")
+        .data(topojson.feature(mpls_communities, mpls_communities.objects.minneapolis_communities).features)
+      .enter()
+        .append("path")
+        .attr("d", path)
+        .style("fill", function(d) { return color_scale(desktop_laptop[0][d.properties.CommName]); });
+
+    console.log(mpls_communities.objects.minneapolis_communities);
+
+
+    // Label Minneapolis communities
+    svg.selectAll(".community-label")
+        .data(topojson.feature(mpls_communities, mpls_communities.objects.minneapolis_communities).features)
+      .enter().append("text")
+        .attr("class", function(d) { return "community-label " + d.properties.name; })
+        .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+        .attr("dy", ".35em")
+        .text(function(d) { return d.properties.CommName; })
+        .style("text-anchor", "middle");
+
+
+    // Add legend
+    var legend = svg.selectAll('g.legend-entry')
+        .data(color_scale.range())
+      .enter()
+        .append('g').attr('class', 'legend-entry');
+
+    legend
+        .append('rect')
+        .attr("x", width - 910)
+        .attr("y", function(d, i) {
+          return i * 20 + 20;
+        })
+        .attr("width", 10)
+        .attr("height", 10)
+        .style("stroke", "black")
+        .style("stroke-width", 1)
+        .style("fill", function(d){return d;});
+
+    legend
+        .append('text')
+        .attr("x", width - 895) //leave 5 pixel space after the <rect>
+        .attr("y", function(d, i) {
+          return i * 20 + 20;
+        })
+        .attr("dy", "0.8em") //place text one line *below* the x,y point
+        .text(function(d,i) {
+          var extent = color_scale.invertExtent(d);
+          return Math.round(extent[0]) + " - " + Math.round(extent[1]);
+        });
+}
+
+</script>
+
+
+</body>
+
+</html>

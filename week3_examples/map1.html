@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html data-ember-extension="1"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><meta charset="utf-8">
+<style>
+body {
+  font-family: "Helvetica", sans-serif;
+}
+path {
+  stroke-linejoin: round;
+}
+.points{
+  fill: black;
+}
+.land {
+  fill: #bbb;
+}
+.states {
+  stroke: #fff;
+  fill: none;
+}
+.counties {
+  stroke: #fff;
+  fill: none;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Fifty Nifty...</h1>
+<h2>with airports!</h2>
+
+<div id="details"></div>
+
+  <script src="map1_files/d3.js"></script>
+  <script src="map1_files/queue.js"></script>
+  <script src="map1_files/topojson.js"></script>
+
+<script>
+
+var width = 960,
+    height = 500;
+
+
+var projection = d3.geo.albers();
+
+
+var path = d3.geo.path()
+    .projection(projection)
+    .pointRadius(1);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+queue()
+    .defer(d3.json, "map1_files/us.json")
+    .defer(d3.tsv, "map1_files/readme-airports.tsv")
+    .await(ready);
+
+function ready(error, us, airports) {
+  svg.append("path")
+      .datum(topojson.feature(us, us.objects.land))
+      .attr("class", "land")
+      .attr("d", path);
+
+  svg.append("g")
+      .attr("class", "states")
+      .selectAll("path")
+      .data(topojson.feature(us, us.objects.states).features)
+    .enter()
+      .append("path")
+      .attr("d", path);
+
+  svg.append("g")
+      .attr("class", "counties")
+      .selectAll("path")
+      .data(topojson.feature(us, us.objects.counties).features)
+    .enter()
+      .append("path")
+      .attr("d", path);
+
+  svg.append("path")
+      .datum({type: "MultiPoint", coordinates: airports})
+      .attr("class", "points")
+      .attr("d", path);
+
+}
+
+</script>
+
+</body></html>
