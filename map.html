@@ -50,14 +50,13 @@
 <script>
 
 var width = 960,
-  height = 1200;
+    height = 1200;
 
+// Define projection, centered on the city of Minneapolis
 var mercatorprojection = d3.geo.mercator()
     .center([-93.258133, 44.97])
     .scale(250000)
     .translate([width / 2, height / 2]);  // translate so the map is centered w/in the SVG element
-
-// var projection = d3.geo.albers();
 
 var path = d3.geo.path()
     .projection(mercatorprojection)
@@ -73,14 +72,13 @@ queue()
     .await(ready);
 
 
-// Datasets
+// Datasets from Minneapolis Community Technology Survey
 var desktop_laptop = [{ "Calhoun Isle": 92, "Camden": 78, "Central": 77, "Longfellow": 90, "Near North": 69, "Nokomis": 89, "Northeast": 84, "Phillips": 71, "Powderhorn": 84, "Southwest": 92, "University": 92 }];
 var cellphone = [{ "Calhoun Isle": 85, "Camden": 72, "Central": 77, "Longfellow": 75, "Near North": 75, "Nokomis": 79, "Northeast": 79, "Phillips": 68, "Powderhorn": 78, "Southwest": 83, "University": 79 }];
 
-// Defining color scale
+// Define color scale
 var color_scale = d3.scale.quantize()
     .domain(d3.values(desktop_laptop[0]).sort(d3.descending))
-    //.range(["#bae4bc","#7bccc4","#43a2ca","#0868ac"]);
     .range(["#31a354", "#74c476", "#fdae6b", "#e6550d"]);
 
 
