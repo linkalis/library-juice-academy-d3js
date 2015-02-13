@@ -1,0 +1,105 @@
+<head>
+  <meta charset="utf-8"/>
+
+  <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<!--
+  <script src="http://cdnjs.com/libraries/crossfilter"></script>
+  <script src="http://cdnjs.com/libraries/dc"></script>
+-->
+  <script src="crossfilter/crossfilter.js"></script>
+  <script src="dc/dc.js"></script>
+
+</head>
+
+<body>
+
+  <div id="#d3chart"></div>
+  <h3>Survey responses by day of the week</h3>
+  <div id="day-of-week-chart"></div>
+  <div id="hour-by-hour-chart"></div>
+
+<script>
+$(document).ready(function() {
+
+var data0;
+
+var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+
+d3.csv("videosurvey.csv")
+  .row(function(d) {
+    return {
+      id: d.ResponseID,
+      timestamp: parseDate(d.StartDate)
+    }; })
+  .get(function(error, rows) {
+    data0 = rows;
+    console.log(rows);
+
+    // Apply Crossfilter to entire dataset (data0)
+    var data = crossfilter(data0);
+
+    // Define Crossfilter dimensions
+    // WEEK
+    var week = data.dimension(function(d) { return d3.time.week(new Date(d.timestamp*1000)); });
+    var weeks = week.group().reduceCount();
+
+
+    // DAY OF WEEK
+    var dayOfWeek = data.dimension(function (d) {
+        var day = d.timestamp.getDay();
+        var name = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        return day + '.' + name[day];
+    });
+    var dayOfWeekGroup = dayOfWeek.group();
+
+    var dayOfWeekChart = dc.rowChart('#day-of-week-chart');
+
+    dayOfWeekChart
+      .width(400).height(400)
+      .margins({top: 20, left: 10, right: 10, bottom: 20})
+      .group(dayOfWeekGroup)
+      .dimension(dayOfWeek)
+      .ordinalColors(['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#dadaeb'])
+      .label(function (d) {
+          return d.key.split('.')[1];
+      })
+      .title(function (d) {
+          return d.value;
+      })
+      .elasticX(true)
+      .xAxis().ticks(4);
+
+
+/* This HOUR lineChart isn't working for some reason--can't tell why!
+
+    // HOUR
+    var hour = data.dimension(function(d) {
+        return Math.round(new Date(d.timestamp).getHours()+new Date(d.timestamp).getMinutes()/60);
+        });
+    var hoursGroup = hour.group().reduceCount();
+    var minDateh = "0";
+    var maxDateh = "24";
+
+    var hourbyHourChart = dc.lineChart("#hour-by-hour-chart");
+
+    hourbyHourChart
+        .width(500).height(200)
+        .dimension(hour)
+        .group(hourGroup)
+        .x(d3.scale.linear().domain([0,24]))
+            .yAxisLabel("Surveys per hour of the day")
+        .transitionDuration(500)
+            .filter();
+*/
+
+    dc.renderAll();
+
+  });
+
+  console.log("Done reading data");
+
+});
+</script>
+
+</body>
